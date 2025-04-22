@@ -1,16 +1,21 @@
-import { STORAGE_NAME } from "../constants/constants";
-import { handleLocalStorage } from "./../../utils/handleLocalStorage";
+import {
+  LOCAL_STORAGE_CANDIDATES_KEY,
+  LOCAL_STORAGE_CONFIG_KEY,
+  LOCAL_STORAGE_NOTES_KEY,
+} from "../constants/constants";
 
-type CandidateStateType = {
+import { handleLocalStorage } from "../utils/handleLocalStorage";
+
+export type CandidateStateType = {
   [key: number]: object;
 };
 
-type AddActionType = {
-  type: "ADD";
+type ActionType = {
+  type: "ADD" | "FILL_SAMPLE_DATA";
   payload: object;
 };
-type DeleteActionType = {
-  type: "DELETE";
+type ModificationActionType = {
+  type: "DELETE" | "EDIT";
   payload: {
     id: number;
   };
@@ -21,36 +26,61 @@ type ResetActionType = {
 };
 
 export type CandidateActionType =
-  | AddActionType
-  | DeleteActionType
+  | ActionType
+  | ModificationActionType
   | ResetActionType;
+
+const { setLocalItem, removeLocalStorage: removeCandidates } =
+  handleLocalStorage(LOCAL_STORAGE_CANDIDATES_KEY);
+const { removeLocalStorage: removeConfig } = handleLocalStorage(
+  LOCAL_STORAGE_CONFIG_KEY,
+);
+const { removeLocalStorage: removeNotes } = handleLocalStorage(
+  LOCAL_STORAGE_NOTES_KEY,
+);
 
 export function candidateReducer(
   state: CandidateStateType = {},
-  { type, payload }: CandidateActionType,
-) {
-  const { setLocalItem, removeLocalStorage } = handleLocalStorage(STORAGE_NAME);
+  action: CandidateActionType,
+): CandidateStateType {
+  let newState: CandidateStateType;
 
-  switch (type) {
+  switch (action.type) {
     case "ADD": {
       const uniqueId = Date.now();
-      const newCandidate = { [uniqueId]: payload };
-      const newCandidateList = { ...state, ...newCandidate };
-      const isSuccess = setLocalItem(newCandidateList);
-      return isSuccess ? newCandidateList : state;
+      const newCandidate = {
+        [uniqueId]: { ...action.payload, id: uniqueId },
+      };
+      newState = { ...newCandidate, ...state };
+      break;
+    }
+    case "EDIT": {
+      const { id } = action.payload;
+      newState = { ...state };
+      newState[id] = { ...action.payload };
+      break;
     }
     case "DELETE": {
-      const newCandidateList = { ...state };
-      const idCandidateForRemoval = payload.id;
-      delete newCandidateList[idCandidateForRemoval];
-      const isSuccess = setLocalItem(newCandidateList);
-      return isSuccess ? newCandidateList : state;
+      const { id } = action.payload;
+      newState = { ...state };
+      delete newState[id];
+      break;
+    }
+    case "FILL_SAMPLE_DATA": {
+      newState = { ...action.payload };
+      break;
     }
     case "RESET": {
-      removeLocalStorage();
-      return {};
+      newState = {};
+      removeCandidates();
+      removeConfig();
+      removeNotes();
+      return newState;
     }
     default:
       return state;
   }
+
+  const isSuccess = setLocalItem(newState);
+  return isSuccess ? newState : state;
 }
