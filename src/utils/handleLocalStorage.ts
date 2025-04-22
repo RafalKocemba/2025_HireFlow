@@ -1,6 +1,6 @@
-import { ERROR } from "../src/constants/constants";
+import { ERROR } from "../constants/constants";
 
-export const handleLocalStorage = (key: string) => {
+export function handleLocalStorage(key: string) {
   const setLocalItem = (value: unknown) => {
     let isSuccess;
     try {
@@ -15,23 +15,31 @@ export const handleLocalStorage = (key: string) => {
   };
 
   const getLocalItem = () => {
+    let isSuccess;
     try {
       const item = window.localStorage.getItem(key);
+      isSuccess = true;
       return item ? JSON.parse(item) : undefined;
     } catch (error) {
+      isSuccess = false;
       console.log(error);
       alert(ERROR);
     }
+    return isSuccess;
   };
 
   const removeLocalStorage = () => {
+    let isSuccess;
     try {
       window.localStorage.removeItem(key);
+      isSuccess = true;
     } catch (error) {
+      isSuccess = false;
       console.log(error);
       alert(ERROR);
     }
+    return isSuccess;
   };
 
   return { setLocalItem, getLocalItem, removeLocalStorage };
-};
+}
