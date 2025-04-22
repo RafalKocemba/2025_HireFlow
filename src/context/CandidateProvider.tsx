@@ -1,5 +1,5 @@
 import { CandidateContext } from "./CandidateContext";
-import { STORAGE_NAME } from "../constants/constants";
+import { LOCAL_STORAGE_CANDIDATES_KEY } from "../constants/constants";
 import { candidateReducer } from "../reducer/candidateReducer";
 import { useReducer } from "react";
 
@@ -7,8 +7,8 @@ type CandidateProviderProps = {
   children: React.ReactNode;
 };
 
-const initialValue = localStorage[STORAGE_NAME]
-  ? JSON.parse(localStorage[STORAGE_NAME])
+const initialValue = localStorage[LOCAL_STORAGE_CANDIDATES_KEY]
+  ? JSON.parse(localStorage[LOCAL_STORAGE_CANDIDATES_KEY])
   : {};
 
 export const CandidateProvider = ({ children }: CandidateProviderProps) => {
