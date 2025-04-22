@@ -1,5 +1,9 @@
 # HireFlow
 
+## Live Demo
+
+[Check out the live application](https://67f5034165f20a0008188f40--spectacular-kheer-986d05.netlify.app/)
+
 ## Description
 
 HireFlow is a minimal version (MVP) tool for managing candidates in the Frontend Developer recruitment process.
